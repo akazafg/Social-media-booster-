@@ -1,13 +1,14 @@
-import streamlit as st
+     import streamlit as st
 from supabase import create_client, Client
 import urllib.request
 import urllib.parse
 
-# 1. Page Configuration & Elite Styling
+# 1. Page Configuration
 st.set_page_config(page_title="Social Media Booster", layout="wide", page_icon="🔥")
 
-# Injecting Custom Legendary CSS
-st.markdown("""
+# Injecting Custom CSS securely
+st.markdown(
+    """
     <style>
     /* Main Background and Text */
     .stApp {
@@ -18,7 +19,7 @@ st.markdown("""
     
     /* Neon Title Styling */
     .legend-title {
-        font-size: 3.5rem !important;
+        font-size: 2.5rem !important;
         font-weight: 900 !important;
         background: linear-gradient(135deg, #ff007f 0%, #7928ca 50%, #00dfd8 100%);
         -webkit-background-clip: text;
@@ -27,24 +28,13 @@ st.markdown("""
         text-transform: uppercase;
         letter-spacing: 2px;
         margin-bottom: 0.5rem;
-        text-shadow: 0 0 30px rgba(121, 40, 202, 0.3);
     }
     
     .legend-subtitle {
         color: #8a99ad;
         text-align: center;
         font-size: 1.1rem;
-        margin-bottom: 3rem;
-    }
-    
-    /* Glassmorphism Cards */
-    div[data-testid="stVerticalBlock"] > div {
-        background: rgba(18, 20, 32, 0.7) !important;
-        border: 1px solid rgba(255, 255, 255, 0.05) !important;
-        border-radius: 16px !important;
-        padding: 2rem !important;
-        backdrop-filter: blur(12px);
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        margin-bottom: 2rem;
     }
     
     /* Glowing Action Buttons */
@@ -58,12 +48,6 @@ st.markdown("""
         text-transform: uppercase;
         padding: 0.75rem 2rem !important;
         box-shadow: 0 4px 15px rgba(255, 0, 127, 0.4) !important;
-        transition: all 0.3s ease !important;
-    }
-    
-    .stButton > button:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 6px 25px rgba(255, 0, 127, 0.6) !important;
     }
     
     /* Input Fields Matrix Styling */
@@ -72,25 +56,11 @@ st.markdown("""
         color: #00dfd8 !important;
         border: 1px solid #2d3142 !important;
         border-radius: 10px !important;
-        font-family: 'Courier New', monospace !important;
-    }
-    
-    textarea:focus, input:focus {
-        border-color: #00dfd8 !important;
-        box-shadow: 0 0 10px rgba(0, 223, 216, 0.3) !important;
-    }
-    
-    /* Tabs Customization */
-    button[data-baseweb="tab"] {
-        color: #8a99ad !important;
-        font-size: 1.1rem !important;
-    }
-    button[aria-selected="true"] {
-        color: #00dfd8 !important;
-        border-bottom-color: #00dfd8 !important;
     }
     </style>
-""", unsafe_allowed_html=True)
+    """,
+    unsafe_allowed_html=True
+)
 
 # 2. Database & Auth Connection
 try:
@@ -109,7 +79,6 @@ if st.session_state.user is None:
     with st.sidebar:
         st.markdown("### ⚡ ENGINE CORE")
         st.markdown("🌐 STATUS: `ONLINE`")
-        st.markdown("🔒 CODES: `ENCRYPTED`")
         st.markdown("---")
         st.markdown("### 🚀 PREMIUM EXTENSION")
         st.info("🌟 **LAUNCHING SEPT 2026**\n\nUnlock Tier-1 algorithms, neural image matrices, and industrial automation pipelines.")

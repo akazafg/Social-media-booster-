@@ -1,41 +1,22 @@
 import streamlit as st
 from supabase import create_client, Client
-from openai import OpenAI
-from st_paywall import add_auth
+import urllib.request
+import urllib.parse
 
 # 1. Page Configuration
 st.set_page_config(page_title="Social Media Booster", layout="wide", page_icon="🔥")
-st.title("🔥 Social Media Booster SaaS")
+st.title("🔥 Free Social Media Booster")
 
-# 2. THE SUBSCRIPTION PAYWALL GATE
-try:
-    add_auth(
-        required=True,
-        login_button_text="Login with Google to start boosting",
-        payment_button_text="Subscribe to Unlock Premium Engine",
-    )
-except Exception as e:
-    st.error("Authentication setup pending. Please provide your Stripe and Google Client secrets.")
-    st.stop()
-
-# ----------------------------------------------------
-# EVERYTHING BELOW THIS LINE IS LOCKED BEHIND THE PAYWALL
-# ----------------------------------------------------
-st.success(f"🎟️ Active Subscription Verified! Welcome back, {st.session_state.email}")
-
-# 3. Database & AI Connections
+# 2. Database Connections (Using your free Supabase)
 try:
     supabase_url = st.secrets["SUPABASE_URL"]
     supabase_key = st.secrets["SUPABASE_KEY"]
-    openai_api_key = st.secrets["OPENAI_API_KEY"]
-    
     supabase: Client = create_client(supabase_url, supabase_key)
-    client = OpenAI(api_key=openai_api_key)
 except Exception as e:
     st.error("Missing core API secrets in Streamlit Cloud Settings panel.")
     st.stop()
 
-# 4. App UI Layout
+# 3. App UI Layout
 col1, col2 = st.columns([1, 1], gap="large")
 
 with col1:
@@ -59,20 +40,16 @@ with col2:
         if not raw_text.strip():
             st.warning("Please insert some text or an idea first.")
         else:
-            with st.spinner("Analyzing viral hooks and formatting..."):
+            with st.spinner("Analyzing viral hooks using free engine..."):
                 try:
-                    system_prompt = "You are an elite growth marketer and viral ghostwriter."
-                    user_prompt = f"Optimize this text: '{raw_text}' using the '{tone_style}' framework for LinkedIn and X."
+                    # Free Serverless AI Text Generation API
+                    prompt = f"Optimize this text: '{raw_text}' using the '{tone_style}' framework for LinkedIn and X. Be an elite growth marketer."
+                    url = f"https://text.pollinations.ai/{urllib.parse.quote(prompt)}"
                     
-                    response = client.chat.completions.create(
-                        model="gpt-4o-mini",
-                        messages=[
-                            {"role": "system", "content": system_prompt},
-                            {"role": "user", "content": user_prompt}
-                        ]
-                    )
+                    req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+                    with urllib.request.urlopen(req) as response:
+                        boosted_content = response.read().decode('utf-8')
                     
-                    boosted_content = response.choices[0].message.content
                     st.success("Content Boost Complete!")
                     st.markdown(boosted_content)
                     

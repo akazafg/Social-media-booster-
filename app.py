@@ -1,9 +1,9 @@
 import streamlit as st
 from supabase import create_client, Client
-import urllib.parse
+import random
 
 # 1. Page Configuration
-st.set_page_config(page_title="BoostCore Universal Hub", layout="wide", page_icon="🚀")
+st.set_page_config(page_title="BoostCore Viral Studio", layout="wide", page_icon="🎬")
 
 # 2. Database & Auth Connection
 try:
@@ -11,105 +11,87 @@ try:
     supabase_key = st.secrets["SUPABASE_KEY"]
     supabase: Client = create_client(supabase_url, supabase_key)
 except Exception as e:
-    st.error("DATABASE ERROR: Missing core API secrets in Streamlit Cloud Settings panel.")
+    st.error("DATABASE ERROR: Missing core API secrets in Streamlit Cloud panel.")
     st.stop()
 
-# Track session routing states
-if "auth_mode" not in st.session_state:
-    st.session_state.auth_mode = "login"
+# Session State Route Engine
 if "user" not in st.session_state:
     st.session_state.user = None
 
 # --- AUTHENTICATION PORTAL ---
 if st.session_state.user is None:
-    st.title("🚀 BoostCore Multi-Network Hub")
-    st.markdown("⚡ *Cross-promote your music and videos to maximize views and followers.*")
-    st.markdown("---")
+    st.title("🎬 BoostCore Viral Command Console")
+    email_input = st.text_input("Enter Registered System Email:")
+    pwd_input = st.text_input("Security Passcode:", type="password")
+    if st.button("Authorize Console Access", use_container_width=True):
+        try:
+            res = supabase.auth.sign_in_with_password({"email": email_input, "password": pwd_input})
+            st.session_state.user = res.user
+            st.rerun()
+        except:
+            st.error("Invalid Command Credentials.")
+    st.stop()
 
-    if st.session_state.auth_mode == "login":
-        st.markdown("### 🔑 Log in to your marketing command terminal")
-        login_email = st.text_input("Email*", key="login_email")
-        login_password = st.text_input("Password*", type="password", key="login_pwd")
-        
-        if st.button("Log In", use_container_width=True):
-            try:
-                res = supabase.auth.sign_in_with_password({"email": login_email, "password": login_password})
-                st.session_state.user = res.user
-                st.rerun()
-            except Exception as e:
-                st.error("ACCESS DENIED: Invalid credentials.")
-        st.stop()
+# --- MAIN VIRAL MATRIX ---
+st.title("🖥️ Mainframe: Viral Script & Hook Blueprint Generator")
+st.markdown("Type what your video is about. The engine will instantly format a psychological structural blueprint to keep viewers watching.")
 
-# --- MAIN ENGINE INTERFACE ---
 with st.sidebar:
-    st.markdown(f"👤 **OPERATOR:**\n`{st.session_state.user.email}`")
+    st.markdown(f"👤 **USER:** `{st.session_state.user.email}`")
     st.markdown("---")
-    st.markdown("### 📢 PROMO GOAL")
-    promo_style = st.selectbox("Select Blast Angle:", ["🔥 Direct Heat / Hype", "💿 Out Now / Streaming", "👀 Behind The Scenes"])
+    video_style = st.selectbox("Select Content Tone:", ["🤫 Controversial / Shocking", "🧠 Educational / Mind-Blowing", "😂 High Entertainment / Relatable"])
     
-    if st.button("🚪 LOG OUT", use_container_width=True):
+    if st.button("🚪 DISCONNECT"):
         supabase.auth.sign_out()
         st.session_state.user = None
         st.rerun()
 
-st.title("🖥️ Mainframe: Multi-Platform Cross-Promotion Panel")
-st.markdown("Paste your source links below to generate text templates and deploy your cross-platform sharing pipeline.")
-
 col1, col2 = st.columns([5, 6], gap="large")
 
 with col1:
-    st.markdown("### 📥 VIDEO SOURCE ELEMENTS")
-    source_link = st.text_input("Your Track / Video URL Link:", value="https://www.tiktok.com/@username/video/123456789")
-    artist_tag = st.text_input("Your Artist Handle Name:", value="Dan Lee")
+    st.markdown("### 📥 VIDEO TOPIC INGESTION")
+    video_topic = st.text_input("What happens in your video? (e.g., trying a crazy food, reacting to a trend):", value="testing a weird life hack")
     
-    execute_build = st.button("⚡ EXECUTE ALL PLATFORM TAGS", use_container_width=True)
+    generate_blueprint = st.button("⚡ GENERATE VIRAL BLUEPRINT", use_container_width=True)
 
 with col2:
-    st.markdown("### 📤 LIVE DISTRIBUTION PIPELINES")
+    st.markdown("### 📤 ALGORITHM COMPLIANT BLUEPRINT")
     
-    if execute_build:
-        # Determine promo caption structures based on selection parameters
-        if promo_style == "🔥 Direct Heat / Hype":
-            caption_template = f"🔥 Yo! The new movement from {artist_tag} is heavy right now. Tap the link to view, drop a like, and follow up! 🎧👇\n{source_link}"
-            hashtags = "#ukdrip #hiphop #newmusic #trending"
-        elif promo_style == "💿 Out Now / Streaming":
-            caption_template = f"💿 The wait is over. The official drop from {artist_tag} is live! Pull up, show love, and share it across! 🚀👇\n{source_link}"
-            hashtags = "#outnow #independentartist #musicvideo #rap"
+    if generate_blueprint:
+        # Internal logical arrays to construct retention frameworks
+        if video_style == "🤫 Controversial / Shocking":
+            hooks = [f"❌ Stop scrolling if you still do this. Let me show you why...", f"😳 I was completely lied to about this, and you probably are too."]
+            comment_baits = "Drop your opinion below, am I completely wrong for this?"
+        elif video_style == "🧠 Educational / Mind-Blowing":
+            hooks = [f"🧠 The exact moment I realized this changed everything...", f"🤯 This looks completely fake, but it is 100% real. Look at this."]
+            comment_baits = "Tell me in the comments if you knew about this before watching."
         else:
-            caption_template = f"👀 Real behind the scenes energy from {artist_tag}. Hit the link to tap into the studio layout directly! 🎬👇\n{source_link}"
-            hashtags = "#bts #studioflow #artistlife #hiphopvibe"
-            
-        full_text_with_tags = f"{caption_template}\n\n{hashtags}"
-        encoded_caption = urllib.parse.quote(full_text_with_tags)
-        
-        st.success("🎯 CROSS-PROMOTION TEMPLATE GENERATED")
-        st.markdown("#### 📝 Copy Text & Tags for TikTok/YouTube Shorts:")
-        st.text_area("Ready-to-Use Copytext:", value=full_text_with_tags, height=130)
-        
-        st.markdown("#### ⚡ Launch Quick-Action Portals:")
-        
-        # 1. Text-sharing automation portals
-        st.markdown(f"[📬 Share to WhatsApp Groups](https://api.whatsapp.com/send?text={encoded_caption})")
-        st.markdown(f"[🐦 Post to X Timeline](https://twitter.com/intent/tweet?text={encoded_caption})")
-        st.markdown(f"[🔵 Share to Facebook Community](https://www.facebook.com/sharer/sharer.php?u={urllib.parse.quote(source_link)})")
-        
-        st.markdown("---")
-        # 2. Direct upload and promotion entry points for Video Hubs
-        st.markdown("[🎵 Open TikTok Web Upload Portal](https://www.tiktok.com/tiktokstudio/upload)")
-        st.markdown("[📺 Open YouTube Studio Upload Portal](https://studio.youtube.com/channel/videos/shorts)")
-        
-        st.markdown("---")
-        st.info("💡 **Mobile Workflow Strategy:** Open this dashboard link on your mobile phone browser. Copy the generated text block above, hit the TikTok or YouTube links to open the upload pages instantly, drop your video file in, and paste the pre-made viral tags instantly!")
+            hooks = [f"😂 Nobody talks about how awkward this actually is...", f"💀 I spent way too long making this, watch what happens at the end."]
+            comment_baits = "Rate this video from 1-10 in the comments right now."
 
-        # Log ad activity metrics securely to database table
+        chosen_hook = random.choice(hooks)
+        
+        st.success("🎯 Retention Blueprint Structured Successfully!")
+        
+        with st.container(border=True):
+            st.subheader("🎬 Video Structure Blueprint")
+            st.markdown(f"**⏱️ Seconds 0-2 (The Hook):**\n`{chosen_hook}`\n*(Overlay this exact text visually on the screen immediately!)*")
+            st.markdown(f"**⏱️ Seconds 3-8 (The Core Body):**\n*Show the action related to '{video_topic}' dynamically. Keep video cuts every 1.5 seconds so viewers don't get bored.*")
+            st.markdown(f"**⏱️ Seconds 9-12 (The Loop & Bait):**\n*Deliver the final reveal rapidly, then immediately cut the video so it repeats seamlessly.*")
+            
+            st.markdown("---")
+            st.subheader("💬 Optimized TikTok Caption & Comment Bait")
+            st.code(f"Wait until the ending... 🍿 {comment_baits} #fyp #trending #viral", language="text")
+
+        # Save to logs securely
         try:
             db_payload = {
-                "user_input": f"Full Promo: {artist_tag}",
-                "ai_output": f"Style: {promo_style}",
-                "platform": "Universal Growth Engine"
+                "user_input": f"Topic: {video_topic}",
+                "ai_output": chosen_hook,
+                "platform": "Viral Blueprint Engine"
             }
             supabase.table("generated_posts").insert(db_payload).execute()
-        except Exception:
+        except:
             pass
     else:
-        st.info("System Standby: Input your track properties to compile your organic cross-platform distribution array.")
+        st.info("System Standby: Awaiting video topic input to run blueprint processing.")

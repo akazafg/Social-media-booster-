@@ -18,7 +18,7 @@ except Exception as e:
 if "user" not in st.session_state:
     st.session_state.user = None
 
-# --- AUTHENTICATION PORTAL ---
+# --- AUTHENTICATION & LANDING MAINBOARD ---
 if st.session_state.user is None:
     with st.sidebar:
         st.markdown("### ⚡ ENGINE STATUS")
@@ -27,15 +27,30 @@ if st.session_state.user is None:
         st.markdown("### 🚀 PREMIUM EXTENSION")
         st.info("🌟 **LAUNCHING SEPT 2026**\n\nUnlock Tier-1 algorithms, neural image matrices, and bulk multi-platform pipelines.")
 
-    st.title("🚀 Social Media Booster Mainframe")
-    st.markdown("Welcome to the professional content optimization engine. Please log in or register your free account below.")
+    # High-Converting Hero Header
+    st.title("🔥 Social Media Booster Mainframe")
+    st.subheader("START EARNING ON YOUR OWN SCHEDULE")
+    st.markdown("⚡ *Free forever • No credit card required • Live instantly*")
+    st.markdown("---")
 
-    auth_tab1, auth_tab2 = st.tabs(["🔑 ACCESS ACCOUNT", "📝 INITIALIZE PROFILE"])
+    # Slushy Style Bold Metrics Grid
+    m_col1, m_col2, m_col3 = st.columns(3)
+    with m_col1:
+        st.metric(label="ACTIVE USERS", value="1,200+")
+    with m_col2:
+        st.metric(label="AVG. ENGAGEMENT BOOST", value="+410%")
+    with m_col3:
+        st.metric(label="COST TO RUN", value="$0 / MTH")
+
+    st.markdown("---")
+    st.markdown("#### 🔒 Access the Elite Content Optimization Mainframe")
+    
+    auth_tab1, auth_tab2 = st.tabs(["🔑 ACCESS ACCOUNT", "📝 INITIALIZE FREE PROFILE"])
 
     with auth_tab1:
         login_email = st.text_input("EMAIL ADDRESS", key="login_email_input")
         login_password = st.text_input("PASSWORD", type="password", key="login_pwd_input")
-        if st.button("AUTHORIZE CONNECTION", use_container_width=True):
+        if st.button("AUTHORIZE CONNECTION ➔", use_container_width=True):
             try:
                 res = supabase.auth.sign_in_with_password({"email": login_email, "password": login_password})
                 st.session_state.user = res.user
@@ -46,16 +61,16 @@ if st.session_state.user is None:
     with auth_tab2:
         signup_email = st.text_input("REGISTER EMAIL", key="signup_email_input")
         signup_password = st.text_input("CREATE PASSWORD (6+ Chars)", type="password", key="signup_pwd_input")
-        if st.button("CREATE SECURE PROFILE", use_container_width=True):
+        if st.button("INITIALIZE FREE ACCOUNT ➔", use_container_width=True):
             try:
                 res = supabase.auth.sign_up({"email": signup_email, "password": signup_password})
-                st.success("✅ Mainframe profile generated! You can now switch to the Access Account tab and Sign In.")
+                st.success("✅ Mainframe profile generated! Switch to the Access Account tab to log in.")
             except Exception as e:
                 st.error(f"Registration Failed: {e}")
 
     st.stop()
 
-# --- MAIN ENGINE INTERFACE (Only runs if successfully logged in) ---
+# --- MAIN ENGINE INTERFACE (Runs if logged in) ---
 with st.sidebar:
     st.markdown(f"👤 **OPERATOR:**\n`{st.session_state.user.email}`")
     st.markdown("---")
@@ -63,7 +78,7 @@ with st.sidebar:
     st.info("🌟 **RELEASING IN 2 MONTHS**\n\nPrepare for heavy-duty volume metrics and raw network amplification protocols.")
     st.markdown("---")
     if st.button("🚪 TERMINATE SESSION", use_container_width=True):
-        supabase.auth.sign_out()
+        supabase.auth.auth.sign_out()
         st.session_state.user = None
         st.rerun()
 

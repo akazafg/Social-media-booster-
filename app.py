@@ -1,10 +1,9 @@
 import streamlit as st
 from supabase import create_client, Client
-import urllib.request
-import json
+import urllib.parse
 
 # 1. Page Configuration
-st.set_page_config(page_title="BoostCore Auto-Poster", layout="wide", page_icon="🤖")
+st.set_page_config(page_title="BoostCore Launchpad", layout="wide", page_icon="🚀")
 
 # 2. Database & Auth Connection
 try:
@@ -20,7 +19,7 @@ if "user" not in st.session_state:
     st.session_state.user = None
 
 if st.session_state.user is None:
-    st.title("🤖 BoostCore Automated Portal")
+    st.title("🚀 BoostCore Portal")
     email_input = st.text_input("System Email:")
     pwd_input = st.text_input("Passcode:", type="password")
     if st.button("Log In", use_container_width=True):
@@ -32,75 +31,42 @@ if st.session_state.user is None:
             st.error("Access Denied.")
     st.stop()
 
-# --- MAIN AUTOMATED TERMINAL ---
-st.title("🖥️ Mainframe: Instant Cross-Posting Engine")
-st.markdown("Paste your TikTok link below. The app will automatically post it to your connected external platforms instantly.")
+# --- MAIN INTERFACE ---
+st.title("🖥️ Mainframe: Instant Share Launchpad")
+st.markdown("Paste your TikTok link below to instantly prepare your viral cross-promotion hooks.")
 
 col1, col2 = st.columns([5, 6], gap="large")
 
 with col1:
-    st.markdown("### 📥 LINK INGESTION")
-    tiktok_url = st.text_input("TikTok Video URL:", value="https://www.tiktok.com/@username/video/123456789")
-    hype_message = st.text_area("Post Caption:", value="🔥 New video dropped! Watch, like, and follow right now!")
+    st.markdown("### 📥 LINK INPUT")
+    tiktok_url = st.text_input("Paste TikTok Video Link:", value="https://www.tiktok.com/@username/video/123456789")
+    caption = st.text_area("Hype Caption:", value="🔥 Check out the new video right now! Drop a like and follow!")
     
-    # The automatic blast trigger button
-    execute_blast = st.button("🚀 LAUNCH AUTOMATIC POSTING", use_container_width=True)
+    generate = st.button("⚡ PREPARE LAUNCH LINKS", use_container_width=True)
 
 with col2:
-    st.markdown("### 📡 LIVE NETWORK DEPLOYMENT LOGS")
+    st.markdown("### 📤 INSTANT SHARE HUB")
     
-    if execute_blast:
-        full_post_text = f"{hype_message}\n\n🎬 Watch Link: {tiktok_url}"
-        st.info("🔄 Connecting to external platform servers...")
-
-        # 🎯 AUTOMATIC POSTING ROUTINE 1: DISCORD
-        if "DISCORD_WEBHOOK_URL" in st.secrets and st.secrets["DISCORD_WEBHOOK_URL"]:
-            try:
-                payload = {"content": full_post_text}
-                req = urllib.request.Request(
-                    st.secrets["DISCORD_WEBHOOK_URL"],
-                    data=json.dumps(payload).encode("utf-8"),
-                    headers={"Content-Type": "application/json", "User-Agent": "Mozilla"},
-                    method="POST"
-                )
-                urllib.request.urlopen(req)
-                st.success("✅ DISCORD: Automatically posted to your server channel!")
-            except Exception as e:
-                st.error(f"Discord Auto-Post Failed: {e}")
-        else:
-            st.warning("⚠️ Discord skipped: No webhook URL added to Streamlit Secrets.")
-
-        # 🎯 AUTOMATIC POSTING ROUTINE 2: TELEGRAM
-        if "TELEGRAM_BOT_TOKEN" in st.secrets and "TELEGRAM_CHAT_ID" in st.secrets:
-            try:
-                token = st.secrets["TELEGRAM_BOT_TOKEN"]
-                chat_id = st.secrets["TELEGRAM_CHAT_ID"]
-                telegram_url = f"https://api.telegram.com/bot{token}/sendMessage"
-                
-                payload = {"chat_id": chat_id, "text": full_post_text}
-                req = urllib.request.Request(
-                    telegram_url,
-                    data=json.dumps(payload).encode("utf-8"),
-                    headers={"Content-Type": "application/json"},
-                    method="POST"
-                )
-                urllib.request.urlopen(req)
-                st.success("✅ TELEGRAM: Automatically posted to your Telegram channel!")
-            except Exception as e:
-                st.error(f"Telegram Auto-Post Failed: {e}")
-        else:
-            st.warning("⚠️ Telegram skipped: Keys missing from Streamlit Secrets.")
-
-        # Save record to Supabase logs
+    if generate:
+        full_text = f"{caption}\n\n🎬 Watch here: {tiktok_url}"
+        encoded_text = urllib.parse.quote(full_text)
+        encoded_url = urllib.parse.quote(tiktok_url)
+        
+        st.success("✅ Launch links generated! Click below to push your link out instantly:")
+        
+        # Grid layout for sharing actions
+        st.markdown(f"### [📬 Launch WhatsApp Share](https://api.whatsapp.com/send?text={encoded_text})")
+        st.markdown(f"### [🐦 Launch X / Twitter Share](https://twitter.com/intent/tweet?text={encoded_text})")
+        st.markdown(f"### [🔵 Launch Facebook Share](https://www.facebook.com/sharer/sharer.php?u={encoded_url})")
+        
+        # Log to Supabase
         try:
             supabase.table("generated_posts").insert({
-                "user_input": f"Auto-Post: {tiktok_url}",
-                "ai_output": hype_message,
-                "platform": "Automated Webhook V2"
+                "user_input": f"Launchpad: {tiktok_url[:30]}",
+                "ai_output": caption,
+                "platform": "Zero-Setup Hub"
             }).execute()
         except:
             pass
-            
-        st.balloons()
     else:
-        st.info("System Idle: Ready to automatically transmit link assets.")
+        st.info("System Ready: Input your video link to activate the sharing launchpad.")

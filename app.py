@@ -3,6 +3,7 @@ from supabase import create_client, Client
 import urllib.request
 import urllib.parse
 import json
+import base64
 
 # 1. Page Configuration
 st.set_page_config(page_title="BoostCore Vision Analyzer", layout="wide", page_icon="📈")
@@ -105,71 +106,67 @@ with col2:
 
     if execute_vision:
         if uploaded_chart is None:
-            st.warning("Analysis Halted: Please upload a chart screenshot image first so the vision engine can read it.")
+            st.warning("Analysis Halted: Please upload a chart screenshot image first.")
         else:
-            with st.spinner("Vision engine scanning chart pixels directly..."):
+            with st.spinner("Vision engine parsing chart image data safely..."):
                 try:
-                    # 1. Convert image to public URL via file.io pipeline
+                    # Direct local conversion to string data URL - skips file upload sites entirely
                     image_bytes = uploaded_chart.getvalue()
-                    upload_url = "https://file.io"
+                    base64_encoded = base64.b64encode(image_bytes).decode('utf-8')
+                    data_url = f"data:{uploaded_chart.type};base64,{base64_encoded}"
                     
-                    boundary = "----WebKitFormBoundary7MA4YWxkTrZu0gW"
-                    payload = []
-                    payload.append(f"--{boundary}".encode())
-                    payload.append(f'Content-Disposition: form-data; name="file"; filename="{uploaded_chart.name}"'.encode())
-                    payload.append(f'Content-Type: {uploaded_chart.type}'.encode())
-                    payload.append(b'')
-                    payload.append(image_bytes)
-                    payload.append(f"--{boundary}--".encode())
-                    payload.append(b'')
+                    # Direct, secure instruction structure
+                    system_instruction = (
+                        f"Analyze this chart image for the {market_context} market. "
+                        "Identify the candle trends and overall path. "
+                        "You must begin your response exactly with one of these lines: "
+                        "'🚨 RECOMMENDATION: BUY' or '🚨 RECOMMENDATION: SELL' or '🚨 RECOMMENDATION: HOLD'. "
+                        "Then list 2 quick reasons explaining your decision based on the candles."
+                    )
                     
-                    req_body = b'\r\n'.join(payload)
+                    # Target endpoint utilizing embedded data URI directly
+                    payload_data = {
+                        "messages": [
+                            {
+                                "role": "user",
+                                "content": [
+                                    {"type": "text", "text": system_instruction},
+                                    {"type": "image_url", "image_url": {"url": data_url}}
+                                ]
+                            }
+                        ],
+                        "model": "p1",
+                        "jsonMode": False
+                    }
                     
-                    upload_req = urllib.request.Request(
-                        upload_url, 
-                        data=req_body, 
+                    # Send optimized direct request post payload
+                    api_endpoint = "https://text.pollinations.ai/"
+                    req_json = json.dumps(payload_data).encode('utf-8')
+                    
+                    req = urllib.request.Request(
+                        api_endpoint,
+                        data=req_json,
                         headers={
-                            'Content-Type': f'multipart/form-data; boundary={boundary}',
+                            'Content-Type': 'application/json',
                             'User-Agent': 'Mozilla/5.0'
                         }
                     )
                     
-                    with urllib.request.urlopen(upload_req) as response:
-                        res_data = json.loads(response.read().decode('utf-8'))
-                    
-                    # Grab direct, stable link
-                    accessible_image_url = res_data["link"]
-                    
-                    # 2. Feed direct image url link right into the AI scanner core
-                    system_instruction = (
-                        f"Analyze this uploaded chart image for the {market_context} market. "
-                        "Look closely at the trend lines, candles, and color patterns. "
-                        "You must begin your response exactly with one of these lines: "
-                        "'🚨 RECOMMENDATION: BUY' or '🚨 RECOMMENDATION: SELL' or '🚨 RECOMMENDATION: HOLD'. "
-                        "Then, list 2 clear reasons based on the actual visual candles/lines seen in the image."
-                    )
-                    
-                    encoded_instruction = urllib.parse.quote(system_instruction)
-                    encoded_img_url = urllib.parse.quote(accessible_image_url)
-                    
-                    vision_endpoint = f"https://text.pollinations.ai/{encoded_instruction}?image={encoded_img_url}&model=p1"
-                    
-                    vision_req = urllib.request.Request(vision_endpoint, headers={'User-Agent': 'Mozilla/5.0'})
-                    with urllib.request.urlopen(vision_req) as vision_res:
-                        raw_verdict = vision_res.read().decode('utf-8')
+                    with urllib.request.urlopen(req) as response:
+                        raw_verdict = response.read().decode('utf-8')
                     
                     st.session_state.vision_output = raw_verdict
                     
                     # Database tracking log logic
                     db_payload = {
-                        "user_input": f"Vision Scanned Market: {market_context}",
+                        "user_input": f"Direct Base64 Scan: {market_context}",
                         "ai_output": raw_verdict,
                         "platform": "Vision Analyzer Core"
                     }
                     supabase.table("generated_posts").insert(db_payload).execute()
                     
                 except Exception as e:
-                    st.error(f"Vision Processing Error: Core system link updated. Details: {e}")
+                    st.error(f"Vision Processing Error: Network busy. Please try again. Details: {e}")
 
     if st.session_state.vision_output:
         st.success("TACTICAL STRATEGY EVALUATION COMPLETE")

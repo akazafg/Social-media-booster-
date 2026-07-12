@@ -1,13 +1,9 @@
 import streamlit as st
 from supabase import create_client, Client
-import urllib.request
-import json
-import base64
-from PIL import Image
-import io
+import urllib.parse
 
 # 1. Page Configuration
-st.set_page_config(page_title="BoostCore OTC Terminal", layout="wide", page_icon="📈")
+st.set_page_config(page_title="BoostCore Growth Hub", layout="wide", page_icon="🚀")
 
 # 2. Database & Auth Connection
 try:
@@ -26,12 +22,12 @@ if "user" not in st.session_state:
 
 # --- AUTHENTICATION PORTAL ---
 if st.session_state.user is None:
-    st.title("📈 BoostCore OTC Scanner Portal")
-    st.markdown("⚡ *Upload broker screenshots for direct visual trend extraction.*")
+    st.title("🚀 BoostCore Organic Growth Hub")
+    st.markdown("⚡ *Cross-promote your video assets across multiple platforms to scale views.*")
     st.markdown("---")
 
     if st.session_state.auth_mode == "login":
-        st.markdown("### 🔑 Log in to your analyzer terminal")
+        st.markdown("### 🔑 Log in to your marketing command terminal")
         login_email = st.text_input("Email*", key="login_email")
         login_password = st.text_input("Password*", type="password", key="login_pwd")
         
@@ -41,133 +37,71 @@ if st.session_state.user is None:
                 st.session_state.user = res.user
                 st.rerun()
             except Exception as e:
-                st.error("ACCESS DENIED: Invalid credentials or unverified profile.")
-        
-        st.markdown("---")
-        if st.button("Not registered? Create an account", key="go_to_signup"):
-            st.session_state.auth_mode = "signup"
-            st.rerun()
-    else:
-        st.markdown("### 📝 Register your profile")
-        signup_email = st.text_input("Email Address*", key="signup_email")
-        signup_password = st.text_input("Password* (6+ characters)", type="password", key="signup_pwd")
-        
-        if st.button("Register Account", use_container_width=True):
-            try:
-                res = supabase.auth.sign_up({"email": signup_email, "password": signup_password})
-                st.success("📩 VERIFICATION LINK SENT! Check your inbox to authorize your terminal.")
-            except Exception as e:
-                st.error(f"Registration Failed: {e}")
-        
-        st.markdown("---")
-        if st.button("Already have an account? Log in", key="go_to_login"):
-            st.session_state.auth_mode = "login"
-            st.rerun()
-    st.stop()
+                st.error("ACCESS DENIED: Invalid credentials.")
+        st.stop()
 
-# --- MAIN OTC SCANNER INTERFACE (Logged In) ---
+# --- MAIN ENGINE INTERFACE ---
 with st.sidebar:
     st.markdown(f"👤 **OPERATOR:**\n`{st.session_state.user.email}`")
     st.markdown("---")
-    if st.button("🚪 TERMINATE SESSION", use_container_width=True):
+    st.markdown("### 📢 PROMO GOAL")
+    promo_style = st.selectbox("Select Blast Angle:", ["🔥 Direct Heat / Hype", "💿 Out Now / Streaming", "👀 Behind The Scenes"])
+    
+    if st.button("🚪 LOG OUT", use_container_width=True):
         supabase.auth.sign_out()
         st.session_state.user = None
         st.rerun()
 
-st.title("🖥️ Mainframe: OTC Tactical Extraction")
-st.markdown("Upload your latest OTC chart screenshot layout. The system compresses the file locally to bypass network errors.")
+st.title("🖥️ Mainframe: Multi-Platform Cross-Promotion Panel")
+st.markdown("Paste your video link below to parse the media asset and deploy your text templates instantly.")
 
 col1, col2 = st.columns([5, 6], gap="large")
 
 with col1:
-    st.markdown("### 📥 OTC CHART INGESTION")
+    st.markdown("### 📥 TIKTOK SOURCE ELEMENT")
+    tiktok_link = st.text_input("TikTok Video Link URL:", value="https://www.tiktok.com/@username/video/123456789")
+    artist_tag = st.text_input("Your Artist / Handle Profile Name:", value="Dan Lee")
     
-    uploaded_chart = st.file_uploader(
-        "Upload Broker Screenshot (PNG, JPG, JPEG):", 
-        type=["png", "jpg", "jpeg"]
-    )
-    
-    execute_vision = st.button("⚡ EXTRACT IMMEDIATE TACTICAL VERDICT", use_container_width=True)
+    execute_build = st.button("⚡ EXECUTE CAMPAIGN INJECTION", use_container_width=True)
 
 with col2:
-    st.markdown("### 📤 ENGINE EVALUATION VERDICT")
+    st.markdown("### 📤 LIVE DISTRIBUTION ENGINE")
     
-    if uploaded_chart is not None:
-        st.image(uploaded_chart, caption="Ingested OTC Chart Array", use_container_width=True)
-    else:
-        st.info("System Standby: Awaiting valid graphic chart array ingestion.")
-
-    if "vision_output" not in st.session_state:
-        st.session_state.vision_output = ""
-
-    if execute_vision:
-        if uploaded_chart is None:
-            st.warning("Analysis Halted: Please upload your OTC chart screenshot image first.")
+    if execute_build:
+        # Determine unique promotional strings based on selection parameters
+        if promo_style == "🔥 Direct Heat / Hype":
+            caption_template = f"🔥 Yo! The new drip from {artist_tag} is moving heavy right now. Tap the link to view, drop a like, and follow up! 👇\n{tiktok_link}"
+        elif promo_style == "💿 Out Now / Streaming":
+            caption_template = f"💿 The wait is over. The official video from {artist_tag} is live right now! Pull up, show love, and share it across! 👇\n{tiktok_link}"
         else:
-            with st.spinner("Compressing and analyzing data pipeline layout..."):
-                try:
-                    # 1. Open image and compress it to reduce data size drastically (avoids 502 error)
-                    img = Image.open(uploaded_chart)
-                    img = img.convert("RGB")
-                    img.thumbnail((500, 500)) # Shrink resolution width/height bounding box
-                    
-                    buffer = io.BytesIO()
-                    img.save(buffer, format="JPEG", quality=60) # High compression drop to save bandwidth
-                    compressed_bytes = buffer.getvalue()
-                    
-                    # 2. Encode optimized compressed array to string structure
-                    base64_encoded = base64.b64encode(compressed_bytes).decode('utf-8')
-                    data_url = f"data:image/jpeg;base64,{base64_encoded}"
-                    
-                    system_instruction = (
-                        "Analyze this uploaded chart image closely. Identify recent candlestick momentum and trends. "
-                        "You must start your response exactly with one of these lines based on what you see: "
-                        "'🚨 RECOMMENDATION: BUY (UP)' or '🚨 RECOMMENDATION: SELL (DOWN)' or '🚨 RECOMMENDATION: HOLD (NEUTRAL)'. "
-                        "Then, write exactly two short bullet points explaining why."
-                    )
-                    
-                    payload_data = {
-                        "messages": [
-                            {
-                                "role": "user",
-                                "content": [
-                                    {"type": "text", "text": system_instruction},
-                                    {"type": "image_url", "image_url": {"url": data_url}}
-                                ]
-                            }
-                        ],
-                        "model": "p1",
-                        "jsonMode": False
-                    }
-                    
-                    api_endpoint = "https://text.pollinations.ai/"
-                    req_json = json.dumps(payload_data).encode('utf-8')
-                    
-                    req = urllib.request.Request(
-                        api_endpoint,
-                        data=req_json,
-                        headers={
-                            'Content-Type': 'application/json',
-                            'User-Agent': 'Mozilla/5.0'
-                        }
-                    )
-                    
-                    with urllib.request.urlopen(req) as response:
-                        raw_verdict = response.read().decode('utf-8')
-                    
-                    st.session_state.vision_output = raw_verdict
-                    
-                    # Store tracking log snapshot in database
-                    db_payload = {
-                        "user_input": "Compressed OTC Vision Extraction Execution",
-                        "ai_output": raw_verdict,
-                        "platform": "Vision Analyzer Core"
-                    }
-                    supabase.table("generated_posts").insert(db_payload).execute()
-                    
-                except Exception as e:
-                    st.error(f"Vision Connection Error. Details: {e}")
+            caption_template = f"👀 Real behind the scenes energy from {artist_tag}. Hit the video link to tap into the movement directly! 👇\n{tiktok_link}"
+            
+        # URL safe text formatting conversion for sharing sheets
+        encoded_caption = urllib.parse.quote(caption_template)
+        
+        st.success("🎯 CROSS-PROMOTION TEMPLATE DESIGN COMPLETE")
+        st.markdown("#### 📝 Copy Your Generated Copytext:")
+        st.text_area("Ready-to-Post Text:", value=caption_template, height=100)
+        
+        st.markdown("#### ⚡ Launch One-Click Share Sheets:")
+        
+        # Streamlit actionable native buttons to fire open target destination apps with text pre-loaded
+        st.markdown(f"[📬 Share Straight to WhatsApp](https://api.whatsapp.com/send?text={encoded_caption})")
+        st.markdown(f"[🐦 Tweet to X Pipeline](https://twitter.com/intent/tweet?text={encoded_caption})")
+        st.markdown(f"[🔵 Post to Facebook Communities](https://www.facebook.com/sharer/sharer.php?u={urllib.parse.quote(tiktok_link)})")
+        
+        st.markdown("---")
+        st.info("💡 **Strategy Track:** Open your app link on your phone. Hit these share links to pop the apps open directly, drop the pre-formatted text instantly into group chats and timelines, and watch the traffic compound!")
 
-    if st.session_state.vision_output:
-        st.success("TACTICAL STRATEGY EVALUATION COMPLETE")
-        st.markdown(st.session_state.vision_output)
+        # Log ad activity metrics securely to database table
+        try:
+            db_payload = {
+                "user_input": f"Cross-Promoted Track: {artist_tag}",
+                "ai_output": f"Style: {promo_style}",
+                "platform": "Organic Growth Hub"
+            }
+            supabase.table("generated_posts").insert(db_payload).execute()
+        except Exception:
+            pass
+    else:
+        st.info("System Standby: Input your TikTok video properties to compile your organic cross-platform assets.")

@@ -109,13 +109,10 @@ with col2:
         else:
             with st.spinner("Vision engine scanning chart pixels directly..."):
                 try:
-                    # 1. Convert the uploaded image into an absolute proxy image URL that Pollinations Vision can read
+                    # 1. Convert image to public URL via file.io pipeline
                     image_bytes = uploaded_chart.getvalue()
+                    upload_url = "https://file.io"
                     
-                    # We upload to an open, secure imagery proxy pipeline
-                    upload_url = "https://tmpfiles.org/api/v1/upload"
-                    
-                    # Boundary setting for raw multi-part form data processing without heavy external libraries
                     boundary = "----WebKitFormBoundary7MA4YWxkTrZu0gW"
                     payload = []
                     payload.append(f"--{boundary}".encode())
@@ -140,14 +137,13 @@ with col2:
                     with urllib.request.urlopen(upload_req) as response:
                         res_data = json.loads(response.read().decode('utf-8'))
                     
-                    # Extract the temporary public image path URL
-                    raw_file_url = res_data["data"]["url"]
-                    accessible_image_url = raw_file_url.replace("https://tmpfiles.org/", "https://tmpfiles.org/dl/")
+                    # Grab direct, stable link
+                    accessible_image_url = res_data["link"]
                     
-                    # 2. Feed the absolute image path directly into the Multimodal Vision API Core
+                    # 2. Feed direct image url link right into the AI scanner core
                     system_instruction = (
                         f"Analyze this uploaded chart image for the {market_context} market. "
-                        "Look at the candles, trend directions, and structure. "
+                        "Look closely at the trend lines, candles, and color patterns. "
                         "You must begin your response exactly with one of these lines: "
                         "'🚨 RECOMMENDATION: BUY' or '🚨 RECOMMENDATION: SELL' or '🚨 RECOMMENDATION: HOLD'. "
                         "Then, list 2 clear reasons based on the actual visual candles/lines seen in the image."
@@ -156,7 +152,6 @@ with col2:
                     encoded_instruction = urllib.parse.quote(system_instruction)
                     encoded_img_url = urllib.parse.quote(accessible_image_url)
                     
-                    # Combined vision pipeline endpoint
                     vision_endpoint = f"https://text.pollinations.ai/{encoded_instruction}?image={encoded_img_url}&model=p1"
                     
                     vision_req = urllib.request.Request(vision_endpoint, headers={'User-Agent': 'Mozilla/5.0'})
@@ -174,7 +169,7 @@ with col2:
                     supabase.table("generated_posts").insert(db_payload).execute()
                     
                 except Exception as e:
-                    st.error(f"Vision Processing Error: Make sure your internet connection is active. Details: {e}")
+                    st.error(f"Vision Processing Error: Core system link updated. Details: {e}")
 
     if st.session_state.vision_output:
         st.success("TACTICAL STRATEGY EVALUATION COMPLETE")

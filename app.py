@@ -12,13 +12,16 @@ try:
     supabase_key = st.secrets["SUPABASE_KEY"]
     supabase: Client = create_client(supabase_url, supabase_key)
 except Exception as e:
-    st.error("DATABASE ERROR: Missing core API secrets in Streamlit Cloud Settings panel.")
+    st.error("DATABASE ERROR: Missing core API secrets.")
     st.stop()
 
+# Track which form to show: "login" or "signup"
+if "auth_mode" not in st.session_state:
+    st.session_state.auth_mode = "login"
 if "user" not in st.session_state:
     st.session_state.user = None
 
-# --- AUTHENTICATION & LANDING MAINBOARD ---
+# --- AUTHENTICATION PORTAL ---
 if st.session_state.user is None:
     with st.sidebar:
         st.markdown("### ⚡ ENGINE STATUS")
@@ -27,13 +30,12 @@ if st.session_state.user is None:
         st.markdown("### 🚀 PREMIUM EXTENSION")
         st.info("🌟 **LAUNCHING SEPT 2026**\n\nUnlock Tier-1 algorithms, advanced multi-platform variations, and automated content scheduling pipelines.")
 
-    # Professional Creator Header
+    # Main Hero Presentation
     st.title("🔥 Social Media Booster Mainframe")
-    st.subheader("OPTIMIZE YOUR SOCIAL COPY ON DEMAND")
     st.markdown("⚡ *Transform raw text fragments into high-impact, formatted social media posts instantly.*")
     st.markdown("---")
 
-    # High-Performance Focus Metrics Grid
+    # High-Performance Metrics Grid
     m_col1, m_col2, m_col3 = st.columns(3)
     with m_col1:
         st.metric(label="POSTS GENERATED", value="15,000+")
@@ -43,39 +45,50 @@ if st.session_state.user is None:
         st.metric(label="AI EFFICIENCY", value="99.4%")
 
     st.markdown("---")
-    st.markdown("#### 🔒 Access the Elite Content Optimization Mainframe")
-    
-    auth_tab1, auth_tab2 = st.tabs(["🔑 ACCESS ACCOUNT", "📝 INITIALIZE FREE PROFILE"])
 
-    with auth_tab1:
-        login_email = st.text_input("EMAIL ADDRESS", key="login_email_input")
-        login_password = st.text_input("PASSWORD", type="password", key="login_pwd_input")
-        if st.button("AUTHORIZE CONNECTION ➔", use_container_width=True):
+    # Dynamic Form Container matching SerpClix style
+    if st.session_state.auth_mode == "login":
+        st.markdown("### 🔑 Log in to your account")
+        
+        login_email = st.text_input("Email or Username*", key="login_email")
+        login_password = st.text_input("Password*", type="password", key="login_pwd")
+        
+        if st.button("Log In", use_container_width=True):
             try:
                 res = supabase.auth.sign_in_with_password({"email": login_email, "password": login_password})
                 st.session_state.user = res.user
                 st.rerun()
             except Exception as e:
-                st.error("ACCESS DENIED: Please make sure your email is verified or check credentials.")
+                st.error("ACCESS DENIED: Please verify your credentials or email activation state.")
+        
+        st.markdown("---")
+        if st.button("Not registered? Create an account", key="go_to_signup"):
+            st.session_state.auth_mode = "signup"
+            st.rerun()
 
-    with auth_tab2:
-        signup_email = st.text_input("REGISTER EMAIL", key="signup_email_input")
-        signup_password = st.text_input("CREATE PASSWORD (6+ Chars)", type="password", key="signup_pwd_input")
-        if st.button("INITIALIZE FREE ACCOUNT ➔", use_container_width=True):
+    else:
+        st.markdown("### 📝 Create your account")
+        
+        signup_email = st.text_input("Email Address*", key="signup_email")
+        signup_password = st.text_input("Password* (6+ characters)", type="password", key="signup_pwd")
+        
+        if st.button("Register Account", use_container_width=True):
             try:
                 res = supabase.auth.sign_up({"email": signup_email, "password": signup_password})
-                st.success("📩 VERIFICATION EMAIL SENT! Check your inbox (or spam) to activate your account before logging in.")
+                st.success("📩 VERIFICATION EMAIL SENT! Check your inbox to activate your profile.")
             except Exception as e:
                 st.error(f"Registration Failed: {e}")
+        
+        st.markdown("---")
+        if st.button("Already have an account? Log in here", key="go_to_login"):
+            st.session_state.auth_mode = "login"
+            st.rerun()
 
     st.stop()
 
 # --- MAIN ENGINE INTERFACE (Runs if logged in) ---
 with st.sidebar:
     st.markdown(f"👤 **OPERATOR:**\n`{st.session_state.user.email}`")
-    st.markdown("---")
-    st.markdown("### 🚀 PREMIUM TIERS")
-    st.info("🌟 **RELEASING IN 2 MONTHS**\n\nPrepare for heavy-duty volume metrics and network amplification protocols.")
     st.markdown("---")
     if st.button("🚪 TERMINATE SESSION", use_container_width=True):
         supabase.auth.sign_out()

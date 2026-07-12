@@ -2,6 +2,7 @@ import streamlit as st
 from supabase import create_client, Client
 import urllib.request
 import urllib.parse
+import json
 
 # 1. Page Configuration
 st.set_page_config(page_title="BoostCore Vision Analyzer", layout="wide", page_icon="📈")
@@ -72,7 +73,7 @@ with st.sidebar:
         st.rerun()
 
 st.title("🖥️ Mainframe: Market Analysis Pipeline")
-st.markdown("Upload your market screenshot layout and input visual behaviors to output immediate technical direction commands.")
+st.markdown("Upload your market screenshot layout. The engine will read the image directly to analyze technical trends.")
 
 col1, col2 = st.columns([5, 6], gap="large")
 
@@ -89,13 +90,7 @@ with col1:
         value="OTC Crypto Market"
     )
     
-    chart_description = st.text_area(
-        "Describe what you see (Candle color, indicators, support/resistance lines):",
-        height=120,
-        placeholder="e.g., Massive green candle breaking through resistance line, RSI is at 65, moving averages crossing upward..."
-    )
-    
-    execute_vision = st.button("⚡ EXECUTE AUTOMATED CHART ANALYSIS", use_container_width=True)
+    execute_vision = st.button("⚡ EXECUTE IMAGE VISION ANALYSIS", use_container_width=True)
 
 with col2:
     st.markdown("### 📤 ENGINE EVALUATION VERDICT")
@@ -109,38 +104,77 @@ with col2:
         st.session_state.vision_output = ""
 
     if execute_vision:
-        if not chart_description.strip():
-            st.warning("Analysis Halted: Please describe the technical behaviors seen on your chart.")
+        if uploaded_chart is None:
+            st.warning("Analysis Halted: Please upload a chart screenshot image first so the vision engine can read it.")
         else:
-            with st.spinner("Processing structural indicators..."):
+            with st.spinner("Vision engine scanning chart pixels directly..."):
                 try:
-                    # Clean, non-restricted prompt layout
-                    structural_directive = (
-                        f"Analyze this {market_context} trade setup configuration. User description: '{chart_description}'. "
-                        "Give a quick technical trend overview. Your analysis must begin exactly with one of these options: "
-                        "'🚨 RECOMMENDATION: BUY' or '🚨 RECOMMENDATION: SELL' or '🚨 RECOMMENDATION: HOLD'. "
-                        "Then list 2 quick reasons supporting that option."
+                    # 1. Convert the uploaded image into an absolute proxy image URL that Pollinations Vision can read
+                    image_bytes = uploaded_chart.getvalue()
+                    
+                    # We upload to an open, secure imagery proxy pipeline
+                    upload_url = "https://tmpfiles.org/api/v1/upload"
+                    
+                    # Boundary setting for raw multi-part form data processing without heavy external libraries
+                    boundary = "----WebKitFormBoundary7MA4YWxkTrZu0gW"
+                    payload = []
+                    payload.append(f"--{boundary}".encode())
+                    payload.append(f'Content-Disposition: form-data; name="file"; filename="{uploaded_chart.name}"'.encode())
+                    payload.append(f'Content-Type: {uploaded_chart.type}'.encode())
+                    payload.append(b'')
+                    payload.append(image_bytes)
+                    payload.append(f"--{boundary}--".encode())
+                    payload.append(b'')
+                    
+                    req_body = b'\r\n'.join(payload)
+                    
+                    upload_req = urllib.request.Request(
+                        upload_url, 
+                        data=req_body, 
+                        headers={
+                            'Content-Type': f'multipart/form-data; boundary={boundary}',
+                            'User-Agent': 'Mozilla/5.0'
+                        }
                     )
                     
-                    encoded_prompt = urllib.parse.quote(structural_directive)
-                    api_endpoint = f"https://text.pollinations.ai/{encoded_prompt}"
+                    with urllib.request.urlopen(upload_req) as response:
+                        res_data = json.loads(response.read().decode('utf-8'))
                     
-                    req = urllib.request.Request(api_endpoint, headers={'User-Agent': 'Mozilla/5.0'})
-                    with urllib.request.urlopen(req) as response:
-                        raw_verdict = response.read().decode('utf-8')
+                    # Extract the temporary public image path URL
+                    raw_file_url = res_data["data"]["url"]
+                    accessible_image_url = raw_file_url.replace("https://tmpfiles.org/", "https://tmpfiles.org/dl/")
+                    
+                    # 2. Feed the absolute image path directly into the Multimodal Vision API Core
+                    system_instruction = (
+                        f"Analyze this uploaded chart image for the {market_context} market. "
+                        "Look at the candles, trend directions, and structure. "
+                        "You must begin your response exactly with one of these lines: "
+                        "'🚨 RECOMMENDATION: BUY' or '🚨 RECOMMENDATION: SELL' or '🚨 RECOMMENDATION: HOLD'. "
+                        "Then, list 2 clear reasons based on the actual visual candles/lines seen in the image."
+                    )
+                    
+                    encoded_instruction = urllib.parse.quote(system_instruction)
+                    encoded_img_url = urllib.parse.quote(accessible_image_url)
+                    
+                    # Combined vision pipeline endpoint
+                    vision_endpoint = f"https://text.pollinations.ai/{encoded_instruction}?image={encoded_img_url}&model=p1"
+                    
+                    vision_req = urllib.request.Request(vision_endpoint, headers={'User-Agent': 'Mozilla/5.0'})
+                    with urllib.request.urlopen(vision_req) as vision_res:
+                        raw_verdict = vision_res.read().decode('utf-8')
                     
                     st.session_state.vision_output = raw_verdict
                     
                     # Database tracking log logic
                     db_payload = {
-                        "user_input": f"Market: {market_context} | Description: {chart_description}",
+                        "user_input": f"Vision Scanned Market: {market_context}",
                         "ai_output": raw_verdict,
                         "platform": "Vision Analyzer Core"
                     }
                     supabase.table("generated_posts").insert(db_payload).execute()
                     
                 except Exception as e:
-                    st.error(f"Processing Defect: {e}")
+                    st.error(f"Vision Processing Error: Make sure your internet connection is active. Details: {e}")
 
     if st.session_state.vision_output:
         st.success("TACTICAL STRATEGY EVALUATION COMPLETE")

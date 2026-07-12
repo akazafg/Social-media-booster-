@@ -110,20 +110,21 @@ with col2:
 
     if execute_vision:
         if not chart_description.strip():
-            st.warning("Analysis Halt: Please describe the technical behaviors seen on your chart.")
+            st.warning("Analysis Halted: Please describe the technical behaviors seen on your chart.")
         else:
             with st.spinner("Processing structural indicators..."):
                 try:
-                    # Construct structural prompt matrix
+                    # High-priority strict system directive forcing binary outcomes
                     structural_directive = (
-                        f"You are an expert financial analysis terminal evaluating a {market_context} chart layout. "
-                        f"The user has uploaded a screenshot and notes the following indicators: '{chart_description}'. "
-                        "Break down the market psychology, technical candlestick patterns, and risk structures. "
-                        "Conclude with a definitive bold position command labeled explicitly as '🚨 TACTICAL VERDICT: [BUY or SELL]'."
+                        "SYSTEM COMMAND: You are an elite quantitative trading bot. You must follow this instruction precisely. "
+                        f"Analyze this market chart context: {market_context}. Technical details described: {chart_description}. "
+                        "Your response MUST start with this exact line text format: "
+                        "'🚨 TACTICAL VERDICT: BUY' or '🚨 TACTICAL VERDICT: SELL' or '🚨 TACTICAL VERDICT: HOLD'. "
+                        "Do not leave this out under any circumstances. Below that line, give 3 short, punchy bullet points justifying your call."
                     )
                     
                     encoded_prompt = urllib.parse.quote(structural_directive)
-                    api_endpoint = f"https://text.pollinations.ai/{encoded_prompt}"
+                    api_endpoint = f"https://text.pollinations.ai/{encoded_prompt}?model=openai"
                     
                     req = urllib.request.Request(api_endpoint, headers={'User-Agent': 'Mozilla/5.0'})
                     with urllib.request.urlopen(req) as response:
@@ -131,7 +132,7 @@ with col2:
                     
                     st.session_state.vision_output = raw_verdict
                     
-                    # Database tracking logic
+                    # Database tracking log logic
                     db_payload = {
                         "user_input": f"Market: {market_context} | Description: {chart_description}",
                         "ai_output": raw_verdict,

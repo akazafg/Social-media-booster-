@@ -6,91 +6,35 @@ import urllib.parse
 # 1. Page Configuration
 st.set_page_config(page_title="Social Media Booster", layout="wide", page_icon="🔥")
 
-# Injecting Custom CSS securely
-st.markdown(
-    """
-    <style>
-    /* Main Background and Text */
-    .stApp {
-        background: radial-gradient(circle at 50% 50%, #0d0e15 0%, #06070a 100%);
-        color: #e2e8f0;
-        font-family: 'Inter', system-ui, sans-serif;
-    }
-    
-    /* Neon Title Styling */
-    .legend-title {
-        font-size: 2.5rem !important;
-        font-weight: 900 !important;
-        background: linear-gradient(135deg, #ff007f 0%, #7928ca 50%, #00dfd8 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-align: center;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        margin-bottom: 0.5rem;
-    }
-    
-    .legend-subtitle {
-        color: #8a99ad;
-        text-align: center;
-        font-size: 1.1rem;
-        margin-bottom: 2rem;
-    }
-    
-    /* Glowing Action Buttons */
-    .stButton > button {
-        background: linear-gradient(90deg, #7928ca 0%, #ff007f 100%) !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 10px !important;
-        font-weight: 700 !important;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        padding: 0.75rem 2rem !important;
-        box-shadow: 0 4px 15px rgba(255, 0, 127, 0.4) !important;
-    }
-    
-    /* Input Fields Matrix Styling */
-    textarea, input, select {
-        background-color: #0d0f17 !important;
-        color: #00dfd8 !important;
-        border: 1px solid #2d3142 !important;
-        border-radius: 10px !important;
-    }
-    </style>
-    """,
-    unsafe_allowed_html=True
-)
-
 # 2. Database & Auth Connection
 try:
     supabase_url = st.secrets["SUPABASE_URL"]
     supabase_key = st.secrets["SUPABASE_KEY"]
     supabase: Client = create_client(supabase_url, supabase_key)
 except Exception as e:
-    st.error("Missing core API secrets in Streamlit Cloud Settings panel.")
+    st.error("DATABASE ERROR: Missing core API secrets in Streamlit Cloud Settings panel.")
     st.stop()
 
 if "user" not in st.session_state:
     st.session_state.user = None
 
-# --- AUTHENTICATION INTERFACE ---
+# --- AUTHENTICATION PORTAL ---
 if st.session_state.user is None:
     with st.sidebar:
-        st.markdown("### ⚡ ENGINE CORE")
-        st.markdown("🌐 STATUS: `ONLINE`")
+        st.markdown("### ⚡ ENGINE STATUS")
+        st.success("🌐 SERVER: ONLINE")
         st.markdown("---")
         st.markdown("### 🚀 PREMIUM EXTENSION")
-        st.info("🌟 **LAUNCHING SEPT 2026**\n\nUnlock Tier-1 algorithms, neural image matrices, and industrial automation pipelines.")
+        st.info("🌟 **LAUNCHING SEPT 2026**\n\nUnlock Tier-1 algorithms, neural image matrices, and bulk multi-platform pipelines.")
 
-    st.markdown('<h1 class="legend-title">BOOSTER ARCHITECTURE</h1>', unsafe_allowed_html=True)
-    st.markdown('<p class="legend-subtitle">Access the elite content optimization mainframe.</p>', unsafe_allowed_html=True)
+    st.title("🚀 Social Media Booster Mainframe")
+    st.markdown("Welcome to the professional content optimization engine. Please log in or register your free account below.")
 
     auth_tab1, auth_tab2 = st.tabs(["🔑 ACCESS ACCOUNT", "📝 INITIALIZE PROFILE"])
 
     with auth_tab1:
-        login_email = st.text_input("ENTER EMAIL", key="login_email_input")
-        login_password = st.text_input("ENTER PASSWORD", type="password", key="login_pwd_input")
+        login_email = st.text_input("EMAIL ADDRESS", key="login_email_input")
+        login_password = st.text_input("PASSWORD", type="password", key="login_pwd_input")
         if st.button("AUTHORIZE CONNECTION", use_container_width=True):
             try:
                 res = supabase.auth.sign_in_with_password({"email": login_email, "password": login_password})
@@ -101,19 +45,19 @@ if st.session_state.user is None:
 
     with auth_tab2:
         signup_email = st.text_input("REGISTER EMAIL", key="signup_email_input")
-        signup_password = st.text_input("CREATE SECURE PASSWORD (6+ Chars)", type="password", key="signup_pwd_input")
-        if st.button("GENERATE NEW ACCESS PROFILE", use_container_width=True):
+        signup_password = st.text_input("CREATE PASSWORD (6+ Chars)", type="password", key="signup_pwd_input")
+        if st.button("CREATE SECURE PROFILE", use_container_width=True):
             try:
                 res = supabase.auth.sign_up({"email": signup_email, "password": signup_password})
-                st.success("✅ Mainframe account created! Sign In immediately.")
+                st.success("✅ Mainframe profile generated! You can now switch to the Access Account tab and Sign In.")
             except Exception as e:
-                st.error(f"Initialization Failed: {e}")
+                st.error(f"Registration Failed: {e}")
 
     st.stop()
 
-# --- MAIN APP INTERFACE (Only runs if logged in) ---
+# --- MAIN ENGINE INTERFACE (Only runs if successfully logged in) ---
 with st.sidebar:
-    st.markdown(f"⚡ **OPERATOR:**\n`{st.session_state.user.email}`")
+    st.markdown(f"👤 **OPERATOR:**\n`{st.session_state.user.email}`")
     st.markdown("---")
     st.markdown("### 🚀 PREMIUM TIERS")
     st.info("🌟 **RELEASING IN 2 MONTHS**\n\nPrepare for heavy-duty volume metrics and raw network amplification protocols.")
@@ -123,17 +67,17 @@ with st.sidebar:
         st.session_state.user = None
         st.rerun()
 
-st.markdown('<h1 class="legend-title">SOCIAL BOOSTER ENGINE</h1>', unsafe_allowed_html=True)
-st.markdown('<p class="legend-subtitle">Convert raw thought sequences into global authority matrices.</p>', unsafe_allowed_html=True)
+st.title("🔥 Social Media Booster Engine")
+st.markdown("Convert raw thoughts and conceptual fragments into structural, high-performing text output.")
 
 col1, col2 = st.columns([1, 1], gap="large")
 
 with col1:
     st.markdown("### 📥 RAW INGESTION CORE")
     raw_text = st.text_area(
-        "Input unoptimized sequence concept:",
+        "Input unoptimized post concept:",
         height=200,
-        placeholder="Type raw ideas, stats, or metrics here..."
+        placeholder="Type raw draft, baseline statistics, or core context here..."
     )
     
     tone_style = st.selectbox(
@@ -153,7 +97,7 @@ with col2:
         if not raw_text.strip():
             st.warning("Mainframe alert: Ingestion chamber is empty.")
         else:
-            with st.spinner("Processing neural matrices via free engine..."):
+            with st.spinner("Processing optimization matrices..."):
                 try:
                     prompt = f"Optimize this text: '{raw_text}' using the '{tone_style}' framework for LinkedIn and X. Be an elite growth marketer."
                     url = f"https://text.pollinations.ai/{urllib.parse.quote(prompt)}"

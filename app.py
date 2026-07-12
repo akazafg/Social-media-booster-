@@ -114,17 +114,16 @@ with col2:
         else:
             with st.spinner("Processing structural indicators..."):
                 try:
-                    # High-priority strict system directive forcing binary outcomes
+                    # Clean, non-restricted prompt layout
                     structural_directive = (
-                        "SYSTEM COMMAND: You are an elite quantitative trading bot. You must follow this instruction precisely. "
-                        f"Analyze this market chart context: {market_context}. Technical details described: {chart_description}. "
-                        "Your response MUST start with this exact line text format: "
-                        "'🚨 TACTICAL VERDICT: BUY' or '🚨 TACTICAL VERDICT: SELL' or '🚨 TACTICAL VERDICT: HOLD'. "
-                        "Do not leave this out under any circumstances. Below that line, give 3 short, punchy bullet points justifying your call."
+                        f"Analyze this {market_context} trade setup configuration. User description: '{chart_description}'. "
+                        "Give a quick technical trend overview. Your analysis must begin exactly with one of these options: "
+                        "'🚨 RECOMMENDATION: BUY' or '🚨 RECOMMENDATION: SELL' or '🚨 RECOMMENDATION: HOLD'. "
+                        "Then list 2 quick reasons supporting that option."
                     )
                     
                     encoded_prompt = urllib.parse.quote(structural_directive)
-                    api_endpoint = f"https://text.pollinations.ai/{encoded_prompt}?model=openai"
+                    api_endpoint = f"https://text.pollinations.ai/{encoded_prompt}"
                     
                     req = urllib.request.Request(api_endpoint, headers={'User-Agent': 'Mozilla/5.0'})
                     with urllib.request.urlopen(req) as response:

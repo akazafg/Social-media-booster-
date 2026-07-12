@@ -1,12 +1,11 @@
 import streamlit as st
 from supabase import create_client, Client
 import urllib.request
-import urllib.parse
 import json
 import base64
 
 # 1. Page Configuration
-st.set_page_config(page_title="BoostCore Vision Analyzer", layout="wide", page_icon="📈")
+st.set_page_config(page_title="BoostCore OTC Terminal", layout="wide", page_icon="📈")
 
 # 2. Database & Auth Connection
 try:
@@ -25,8 +24,8 @@ if "user" not in st.session_state:
 
 # --- AUTHENTICATION PORTAL ---
 if st.session_state.user is None:
-    st.title("📈 BoostCore Vision Terminal")
-    st.markdown("⚡ *Analyze chart structures and extract instantaneous tactical execution indicators.*")
+    st.title("📈 BoostCore OTC Scanner Portal")
+    st.markdown("⚡ *Upload broker screenshots for direct visual trend extraction.*")
     st.markdown("---")
 
     if st.session_state.auth_mode == "login":
@@ -64,7 +63,7 @@ if st.session_state.user is None:
             st.rerun()
     st.stop()
 
-# --- MAIN TRADING ANALYZER INTERFACE (Logged In) ---
+# --- MAIN OTC SCANNER INTERFACE (Logged In) ---
 with st.sidebar:
     st.markdown(f"👤 **OPERATOR:**\n`{st.session_state.user.email}`")
     st.markdown("---")
@@ -73,31 +72,26 @@ with st.sidebar:
         st.session_state.user = None
         st.rerun()
 
-st.title("🖥️ Mainframe: Market Analysis Pipeline")
-st.markdown("Upload your market screenshot layout. The engine will read the image directly to analyze technical trends.")
+st.title("🖥️ Mainframe: OTC Tactical Extraction")
+st.markdown("Upload your latest OTC chart screenshot layout. The vision pipeline handles pixel conversion locally.")
 
 col1, col2 = st.columns([5, 6], gap="large")
 
 with col1:
-    st.markdown("### 📥 CHART DATA INGESTION")
+    st.markdown("### 📥 OTC CHART INGESTION")
     
     uploaded_chart = st.file_uploader(
-        "Upload Chart Screenshot (PNG, JPG, JPEG):", 
+        "Upload Broker Screenshot (PNG, JPG, JPEG):", 
         type=["png", "jpg", "jpeg"]
     )
     
-    market_context = st.text_input(
-        "Market / Asset Class Name:", 
-        value="OTC Crypto Market"
-    )
-    
-    execute_vision = st.button("⚡ EXECUTE IMAGE VISION ANALYSIS", use_container_width=True)
+    execute_vision = st.button("⚡ EXTRACT IMMEDIATE TACTICAL VERDICT", use_container_width=True)
 
 with col2:
     st.markdown("### 📤 ENGINE EVALUATION VERDICT")
     
     if uploaded_chart is not None:
-        st.image(uploaded_chart, caption="Ingested Market Chart Target Layout", use_container_width=True)
+        st.image(uploaded_chart, caption="Ingested OTC Chart Array", use_container_width=True)
     else:
         st.info("System Standby: Awaiting valid graphic chart array ingestion.")
 
@@ -106,25 +100,23 @@ with col2:
 
     if execute_vision:
         if uploaded_chart is None:
-            st.warning("Analysis Halted: Please upload a chart screenshot image first.")
+            st.warning("Analysis Halted: Please upload your OTC chart screenshot image first.")
         else:
-            with st.spinner("Vision engine parsing chart image data safely..."):
+            with st.spinner("Decoding image pixels securely..."):
                 try:
-                    # Direct local conversion to string data URL - skips file upload sites entirely
+                    # Direct local conversion to safe string data URI - completely prevents 404 site errors
                     image_bytes = uploaded_chart.getvalue()
                     base64_encoded = base64.b64encode(image_bytes).decode('utf-8')
                     data_url = f"data:{uploaded_chart.type};base64,{base64_encoded}"
                     
-                    # Direct, secure instruction structure
                     system_instruction = (
-                        f"Analyze this chart image for the {market_context} market. "
-                        "Identify the candle trends and overall path. "
-                        "You must begin your response exactly with one of these lines: "
-                        "'🚨 RECOMMENDATION: BUY' or '🚨 RECOMMENDATION: SELL' or '🚨 RECOMMENDATION: HOLD'. "
-                        "Then list 2 quick reasons explaining your decision based on the candles."
+                        "Analyze this uploaded broker chart screenshot closely. Look at the colors and recent candle momentum directions. "
+                        "You must start your response exactly with one of these lines based on what you see: "
+                        "'🚨 RECOMMENDATION: BUY (UP)' or '🚨 RECOMMENDATION: SELL (DOWN)' or '🚨 RECOMMENDATION: HOLD (NEUTRAL)'. "
+                        "Then, write exactly two short bullet points explaining why."
                     )
                     
-                    # Target endpoint utilizing embedded data URI directly
+                    # Direct multi-modal text/image payload structural design
                     payload_data = {
                         "messages": [
                             {
@@ -139,7 +131,6 @@ with col2:
                         "jsonMode": False
                     }
                     
-                    # Send optimized direct request post payload
                     api_endpoint = "https://text.pollinations.ai/"
                     req_json = json.dumps(payload_data).encode('utf-8')
                     
@@ -157,16 +148,16 @@ with col2:
                     
                     st.session_state.vision_output = raw_verdict
                     
-                    # Database tracking log logic
+                    # Store log snapshot in database
                     db_payload = {
-                        "user_input": f"Direct Base64 Scan: {market_context}",
+                        "user_input": "OTC Direct Base64 Vision Extraction Execution",
                         "ai_output": raw_verdict,
                         "platform": "Vision Analyzer Core"
                     }
                     supabase.table("generated_posts").insert(db_payload).execute()
                     
                 except Exception as e:
-                    st.error(f"Vision Processing Error: Network busy. Please try again. Details: {e}")
+                    st.error(f"Vision Connection Interface Timeout. Details: {e}")
 
     if st.session_state.vision_output:
         st.success("TACTICAL STRATEGY EVALUATION COMPLETE")

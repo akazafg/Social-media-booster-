@@ -3,6 +3,8 @@ from supabase import create_client, Client
 import urllib.request
 import json
 import base64
+from PIL import Image
+import io
 
 # 1. Page Configuration
 st.set_page_config(page_title="BoostCore OTC Terminal", layout="wide", page_icon="📈")
@@ -73,7 +75,7 @@ with st.sidebar:
         st.rerun()
 
 st.title("🖥️ Mainframe: OTC Tactical Extraction")
-st.markdown("Upload your latest OTC chart screenshot layout. The vision pipeline handles pixel conversion locally.")
+st.markdown("Upload your latest OTC chart screenshot layout. The system compresses the file locally to bypass network errors.")
 
 col1, col2 = st.columns([5, 6], gap="large")
 
@@ -102,21 +104,28 @@ with col2:
         if uploaded_chart is None:
             st.warning("Analysis Halted: Please upload your OTC chart screenshot image first.")
         else:
-            with st.spinner("Decoding image pixels securely..."):
+            with st.spinner("Compressing and analyzing data pipeline layout..."):
                 try:
-                    # Direct local conversion to safe string data URI - completely prevents 404 site errors
-                    image_bytes = uploaded_chart.getvalue()
-                    base64_encoded = base64.b64encode(image_bytes).decode('utf-8')
-                    data_url = f"data:{uploaded_chart.type};base64,{base64_encoded}"
+                    # 1. Open image and compress it to reduce data size drastically (avoids 502 error)
+                    img = Image.open(uploaded_chart)
+                    img = img.convert("RGB")
+                    img.thumbnail((500, 500)) # Shrink resolution width/height bounding box
+                    
+                    buffer = io.BytesIO()
+                    img.save(buffer, format="JPEG", quality=60) # High compression drop to save bandwidth
+                    compressed_bytes = buffer.getvalue()
+                    
+                    # 2. Encode optimized compressed array to string structure
+                    base64_encoded = base64.b64encode(compressed_bytes).decode('utf-8')
+                    data_url = f"data:image/jpeg;base64,{base64_encoded}"
                     
                     system_instruction = (
-                        "Analyze this uploaded broker chart screenshot closely. Look at the colors and recent candle momentum directions. "
+                        "Analyze this uploaded chart image closely. Identify recent candlestick momentum and trends. "
                         "You must start your response exactly with one of these lines based on what you see: "
                         "'🚨 RECOMMENDATION: BUY (UP)' or '🚨 RECOMMENDATION: SELL (DOWN)' or '🚨 RECOMMENDATION: HOLD (NEUTRAL)'. "
                         "Then, write exactly two short bullet points explaining why."
                     )
                     
-                    # Direct multi-modal text/image payload structural design
                     payload_data = {
                         "messages": [
                             {
@@ -148,16 +157,16 @@ with col2:
                     
                     st.session_state.vision_output = raw_verdict
                     
-                    # Store log snapshot in database
+                    # Store tracking log snapshot in database
                     db_payload = {
-                        "user_input": "OTC Direct Base64 Vision Extraction Execution",
+                        "user_input": "Compressed OTC Vision Extraction Execution",
                         "ai_output": raw_verdict,
                         "platform": "Vision Analyzer Core"
                     }
                     supabase.table("generated_posts").insert(db_payload).execute()
                     
                 except Exception as e:
-                    st.error(f"Vision Connection Interface Timeout. Details: {e}")
+                    st.error(f"Vision Connection Error. Details: {e}")
 
     if st.session_state.vision_output:
         st.success("TACTICAL STRATEGY EVALUATION COMPLETE")

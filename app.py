@@ -3,7 +3,7 @@ from supabase import create_client, Client
 import urllib.parse
 
 # 1. Page Configuration
-st.set_page_config(page_title="BoostCore Growth Hub", layout="wide", page_icon="🚀")
+st.set_page_config(page_title="BoostCore Universal Hub", layout="wide", page_icon="🚀")
 
 # 2. Database & Auth Connection
 try:
@@ -22,8 +22,8 @@ if "user" not in st.session_state:
 
 # --- AUTHENTICATION PORTAL ---
 if st.session_state.user is None:
-    st.title("🚀 BoostCore Organic Growth Hub")
-    st.markdown("⚡ *Cross-promote your video assets across multiple platforms to scale views.*")
+    st.title("🚀 BoostCore Multi-Network Hub")
+    st.markdown("⚡ *Cross-promote your music and videos to maximize views and followers.*")
     st.markdown("---")
 
     if st.session_state.auth_mode == "login":
@@ -53,55 +53,63 @@ with st.sidebar:
         st.rerun()
 
 st.title("🖥️ Mainframe: Multi-Platform Cross-Promotion Panel")
-st.markdown("Paste your video link below to parse the media asset and deploy your text templates instantly.")
+st.markdown("Paste your source links below to generate text templates and deploy your cross-platform sharing pipeline.")
 
 col1, col2 = st.columns([5, 6], gap="large")
 
 with col1:
-    st.markdown("### 📥 TIKTOK SOURCE ELEMENT")
-    tiktok_link = st.text_input("TikTok Video Link URL:", value="https://www.tiktok.com/@username/video/123456789")
-    artist_tag = st.text_input("Your Artist / Handle Profile Name:", value="Dan Lee")
+    st.markdown("### 📥 VIDEO SOURCE ELEMENTS")
+    source_link = st.text_input("Your Track / Video URL Link:", value="https://www.tiktok.com/@username/video/123456789")
+    artist_tag = st.text_input("Your Artist Handle Name:", value="Dan Lee")
     
-    execute_build = st.button("⚡ EXECUTE CAMPAIGN INJECTION", use_container_width=True)
+    execute_build = st.button("⚡ EXECUTE ALL PLATFORM TAGS", use_container_width=True)
 
 with col2:
-    st.markdown("### 📤 LIVE DISTRIBUTION ENGINE")
+    st.markdown("### 📤 LIVE DISTRIBUTION PIPELINES")
     
     if execute_build:
-        # Determine unique promotional strings based on selection parameters
+        # Determine promo caption structures based on selection parameters
         if promo_style == "🔥 Direct Heat / Hype":
-            caption_template = f"🔥 Yo! The new drip from {artist_tag} is moving heavy right now. Tap the link to view, drop a like, and follow up! 👇\n{tiktok_link}"
+            caption_template = f"🔥 Yo! The new movement from {artist_tag} is heavy right now. Tap the link to view, drop a like, and follow up! 🎧👇\n{source_link}"
+            hashtags = "#ukdrip #hiphop #newmusic #trending"
         elif promo_style == "💿 Out Now / Streaming":
-            caption_template = f"💿 The wait is over. The official video from {artist_tag} is live right now! Pull up, show love, and share it across! 👇\n{tiktok_link}"
+            caption_template = f"💿 The wait is over. The official drop from {artist_tag} is live! Pull up, show love, and share it across! 🚀👇\n{source_link}"
+            hashtags = "#outnow #independentartist #musicvideo #rap"
         else:
-            caption_template = f"👀 Real behind the scenes energy from {artist_tag}. Hit the video link to tap into the movement directly! 👇\n{tiktok_link}"
+            caption_template = f"👀 Real behind the scenes energy from {artist_tag}. Hit the link to tap into the studio layout directly! 🎬👇\n{source_link}"
+            hashtags = "#bts #studioflow #artistlife #hiphopvibe"
             
-        # URL safe text formatting conversion for sharing sheets
-        encoded_caption = urllib.parse.quote(caption_template)
+        full_text_with_tags = f"{caption_template}\n\n{hashtags}"
+        encoded_caption = urllib.parse.quote(full_text_with_tags)
         
-        st.success("🎯 CROSS-PROMOTION TEMPLATE DESIGN COMPLETE")
-        st.markdown("#### 📝 Copy Your Generated Copytext:")
-        st.text_area("Ready-to-Post Text:", value=caption_template, height=100)
+        st.success("🎯 CROSS-PROMOTION TEMPLATE GENERATED")
+        st.markdown("#### 📝 Copy Text & Tags for TikTok/YouTube Shorts:")
+        st.text_area("Ready-to-Use Copytext:", value=full_text_with_tags, height=130)
         
-        st.markdown("#### ⚡ Launch One-Click Share Sheets:")
+        st.markdown("#### ⚡ Launch Quick-Action Portals:")
         
-        # Streamlit actionable native buttons to fire open target destination apps with text pre-loaded
-        st.markdown(f"[📬 Share Straight to WhatsApp](https://api.whatsapp.com/send?text={encoded_caption})")
-        st.markdown(f"[🐦 Tweet to X Pipeline](https://twitter.com/intent/tweet?text={encoded_caption})")
-        st.markdown(f"[🔵 Post to Facebook Communities](https://www.facebook.com/sharer/sharer.php?u={urllib.parse.quote(tiktok_link)})")
+        # 1. Text-sharing automation portals
+        st.markdown(f"[📬 Share to WhatsApp Groups](https://api.whatsapp.com/send?text={encoded_caption})")
+        st.markdown(f"[🐦 Post to X Timeline](https://twitter.com/intent/tweet?text={encoded_caption})")
+        st.markdown(f"[🔵 Share to Facebook Community](https://www.facebook.com/sharer/sharer.php?u={urllib.parse.quote(source_link)})")
         
         st.markdown("---")
-        st.info("💡 **Strategy Track:** Open your app link on your phone. Hit these share links to pop the apps open directly, drop the pre-formatted text instantly into group chats and timelines, and watch the traffic compound!")
+        # 2. Direct upload and promotion entry points for Video Hubs
+        st.markdown("[🎵 Open TikTok Web Upload Portal](https://www.tiktok.com/tiktokstudio/upload)")
+        st.markdown("[📺 Open YouTube Studio Upload Portal](https://studio.youtube.com/channel/videos/shorts)")
+        
+        st.markdown("---")
+        st.info("💡 **Mobile Workflow Strategy:** Open this dashboard link on your mobile phone browser. Copy the generated text block above, hit the TikTok or YouTube links to open the upload pages instantly, drop your video file in, and paste the pre-made viral tags instantly!")
 
         # Log ad activity metrics securely to database table
         try:
             db_payload = {
-                "user_input": f"Cross-Promoted Track: {artist_tag}",
+                "user_input": f"Full Promo: {artist_tag}",
                 "ai_output": f"Style: {promo_style}",
-                "platform": "Organic Growth Hub"
+                "platform": "Universal Growth Engine"
             }
             supabase.table("generated_posts").insert(db_payload).execute()
         except Exception:
             pass
     else:
-        st.info("System Standby: Input your TikTok video properties to compile your organic cross-platform assets.")
+        st.info("System Standby: Input your track properties to compile your organic cross-platform distribution array.")

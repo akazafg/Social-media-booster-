@@ -1,10 +1,10 @@
-import time
-import telebot
-import ccxt
-import pandas as pd
-import pandas_ta as ta
-
-# Your custom credentials
+1 import streamlit as st
+2 st.title("Bot Server is Running!")
+3 import time
+4 import telebot
+5 import ccxt
+6 import pandas as pd
+7 import pandas_ta as taortYour custom credentials
 TELEGRAM_TOKEN = "8888466407:AAEuhd1S38dc4wUUV1_zvkr2v0i87PvVsV8
 USER_CHAT_ID = "7924043459" 
 

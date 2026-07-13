@@ -1,47 +1,49 @@
 import time
+import telebot
 import ccxt
 import pandas as pd
+import pandas_ta as ta
 
-# 1. Connect to your exchange securely via API
-exchange = ccxt.binance({
-    'apiKey': 'YOUR_API_KEY',
-    'secret': 'YOUR_SECRET_KEY',
-})
+# Your custom credentials
+TELEGRAM_TOKEN = "8888466407:AAEuhd1S38dc4wUUV1_zvkr2v0i87PvVsV8
+USER_CHAT_ID = "7924043459" 
 
-SYMBOL = 'BTC/USDT'
-TRADE_AMOUNT = 0.001 
+bot = telebot.TeleBot(TELEGRAM_TOKEN)
+exchange = ccxt.bybit()
 
-def get_market_data():
-    # Fetch recent price candles (OHLCV)
-    candles = exchange.fetch_ohlcv(SYMBOL, timeframe='15m', limit=50)
-    df = pd.DataFrame(candles, columns=['time', 'open', 'high', 'low', 'close', 'volume'])
-    return df
+SYMBOL = "BTC/USDT"
+TIMEFRAME = "5m"  
 
-def trading_strategy(df):
-    # Example: Simple moving average strategy
-    short_ma = df['close'].rolling(window=10).mean().iloc[-1]
-    long_ma = df['close'].rolling(window=30).mean().iloc[-1]
-    
-    if short_ma > long_ma:
-        return 'BUY'
-    elif short_ma < long_ma:
-        return 'SELL'
-    return 'HOLD'
-
-# 2. The Execution Loop
-while True:
+def get_signal():
     try:
-        data = get_market_data()
-        signal = trading_strategy(data)
+        bars = exchange.fetch_ohlcv(SYMBOL, timeframe=TIMEFRAME, limit=50)
+        df = pd.DataFrame(bars, columns=['time', 'open', 'high', 'low', 'close', 'volume'])
         
-        if signal == 'BUY':
-            print("Trend is Up! Placing Buy Order...")
-            # exchange.create_market_buy_order(SYMBOL, TRADE_AMOUNT)
-        elif signal == 'SELL':
-            print("Trend is Down! Placing Sell Order...")
-            # exchange.create_market_sell_order(SYMBOL, TRADE_AMOUNT)
-            
+        df['rsi'] = ta.rsi(df['close'], length=14)
+        latest_rsi = df['rsi'].iloc[-1]
+        latest_price = df['close'].iloc[-1]
+        
+        print(f"Scanning {SYMBOL}: Price ${latest_price} | RSI: {latest_rsi:.2f}")
+        
+        if latest_rsi < 30:
+            return f"🟢 **UP SIGNAL (CALL)** 🟢\nAsset: {SYMBOL}\nPrice: ${latest_price}\nMarket is oversold. Expecting a bounce!"
+        elif latest_rsi > 70:
+            return f"🔴 **DOWN SIGNAL (PUT)** 🔴\nAsset: {SYMBOL}\nPrice: ${latest_price}\nMarket is overbought. Expecting a drop!"
+        
+        return None 
     except Exception as e:
-        print(f"Error encountered: {e}")
-        
-    time.sleep(900) # Wait 15 minutes before checking next candle
+        print(f"Error reading chart: {e}")
+        return None
+
+# Start up notification sent directly to your chat
+try:
+    bot.send_message(USER_CHAT_ID, "🚀 Your Trading Signal Bot is officially online and tracking the charts!")
+except Exception as e:
+    print(f"Could not send startup message. Did you click /start on your bot? Error: {e}")
+
+while True:
+    signal_message = get_signal()
+    if signal_message:
+        bot.send_message(USER_CHAT_ID, signal_message, parse_mode="Markdown")
+        time.sleep(600) 
+    time.sleep(30)

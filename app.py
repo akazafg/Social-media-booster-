@@ -105,5 +105,6 @@ for match in global_matches:
             st.success(f"**{play_ticket}**")
             st.markdown("---")
             st.caption("Manage your stake sizing carefully. Play responsibly.")
+
 if global_tickets_deployed == 0:
     st.info("The system completed a full scan of all upcoming weekly matchups. No active games perfectly cleared the 90% safety index right now. Recheck the console shortly!")

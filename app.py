@@ -59,7 +59,7 @@ for match in matches_list:
     implied_probability = random.randint(75, 99)
     
     # 🛑 THE GATEKEEPER BARRIER: Drop anything below 96%
-    if implied_probability < 90:
+    if implied_probability < 80:
         continue
         
     tickets_deployed += 1

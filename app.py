@@ -150,7 +150,7 @@ for idx, match in enumerate(global_matches):
         market_type = "O15"
 
     # 🛑 THE GATEKEEPER BARRIER: Filter matches strictly at 80%
-    if implied_probability < 80:
+    if implied_probability < 80 81 82 85 90 91 95 100:
         continue
         
     global_tickets_deployed += 1

@@ -6,8 +6,8 @@ import math
 # 1. Dashboard Theme Configuration
 st.set_page_config(page_title="BoostCore Engine v2", layout="wide", page_icon="🌍")
 
-st.title("🌍 BoostCore: Data-Driven 80% Global Mainframe")
-st.markdown("Evaluating upcoming matches using Poisson Distribution & Form Analytics to discover mathematically sound 80%+ banker options.")
+st.title("🌍 BoostCore: Data-Driven 70% Global Mainframe")
+st.markdown("Evaluating upcoming matches using Poisson Distribution & Form Analytics to discover mathematically sound 70%+ banker options.")
 
 # 2. Key Input Panel
 st.sidebar.markdown("### 🔑 GLOBAL ACCESSIBILITY DATA ROUTE")
@@ -15,7 +15,7 @@ API_KEY = st.sidebar.text_input("Enter Open-Tier Token:", value="", type="passwo
 st.sidebar.markdown("[Get a Free Token instantly via Email here](https://www.football-data.org/client/register)")
 
 st.sidebar.markdown("---")
-st.sidebar.info("⚙️ **Engine Status:** Mathematical Form Analysis Model Activated. Filters set to 80% threshold.")
+st.sidebar.info("⚙️ **Engine Status:** Mathematical Form Analysis Model Activated. Filters set to 70% threshold.")
 
 if not API_KEY:
     st.info("💡 Paste your data token into the sidebar panel to unlock the unrestricted global match board.")
@@ -84,7 +84,7 @@ if not global_matches:
 
 # 4. Core Predictive Processing Matrix
 global_tickets_deployed = 0
-st.subheader("🎯 Calculated Data-Driven Banker Slips (80%+ Statistical Confidence)")
+st.subheader("🎯 Calculated Data-Driven Banker Slips (70%+ Statistical Confidence)")
 
 # Progress bar since we call team metrics dynamically
 progress_bar = st.progress(0)
@@ -129,14 +129,10 @@ for idx, match in enumerate(global_matches):
     prob_away_1 = poisson_probability(1, exp_away_goals)
     
     # 1. Calculate Over 1.5 Goals Probability
-    # P(0-0) = P(H=0) * P(A=0)
-    # P(1-0) = P(H=1) * P(A=0)
-    # P(0-1) = P(H=0) * P(A=1)
     prob_under_1_5 = (prob_home_0 * prob_away_0) + (prob_home_1 * prob_away_0) + (prob_home_0 * prob_away_1)
     prob_over_1_5 = max(0, min(99, int((1.0 - prob_under_1_5) * 100)))
     
     # 2. Calculate Double Chance (Home Win or Draw) Probability
-    # Estimate based on expected goal differentials
     goal_diff = exp_home_goals - exp_away_goals
     prob_home_win_or_draw = int(100 / (1.0 + math.exp(-1.2 * (goal_diff + 0.5))))
     prob_home_win_or_draw = max(50, min(99, prob_home_win_or_draw))
@@ -149,8 +145,8 @@ for idx, match in enumerate(global_matches):
         implied_probability = prob_over_1_5
         market_type = "O15"
 
-    # 🛑 THE GATEKEEPER BARRIER: Filter matches strictly at 80%
-    if implied_probability < 80 81 82 85 90 91 95 100:
+    # 🛑 THE GATEKEEPER BARRIER: Filter matches strictly at 70%
+    if implied_probability < 70:
         continue
         
     global_tickets_deployed += 1
@@ -180,4 +176,4 @@ for idx, match in enumerate(global_matches):
 progress_bar.empty()
 
 if global_tickets_deployed == 0:
-    st.info("The system completed a full data-driven scan of upcoming matchups. No active matches mathematically crossed the 80% confidence index thresholds right now.")
+    st.info("The system completed a full data-driven scan of upcoming matchups. No active matches mathematically crossed the 70% confidence index thresholds right now.")
